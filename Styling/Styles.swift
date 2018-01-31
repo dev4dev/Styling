@@ -8,44 +8,78 @@
 
 import UIKit
 
-struct Style<Klass: UIView> {
-    private let style: (Klass) -> Void
-    init(_ style: @escaping (Klass) -> Void) {
+struct UIStyle<Type: UIView> {
+    private let style: (Type) -> Void
+    init(_ style: @escaping (Type) -> Void) {
         self.style = style
     }
 
-    func apply(to view: Klass) {
+    func apply(to view: Type) {
         style(view)
+    }
+
+    func combine(with style: UIStyle<Type>) -> UIStyle<Type> {
+        return UIStyle<Type> { view in
+            self.apply(to: view)
+            style.apply(to: view)
+        }
+    }
+
+    static func combine(_ styles: UIStyle<Type>...) -> UIStyle<Type> {
+        return UIStyle<Type> { (view: Type) in
+            for style in styles {
+                style.apply(to: view)
+            }
+        }
     }
 }
 
-protocol Styled {
-
+func + <Type>(lhs: UIStyle<Type>, rhs: UIStyle<Type>) -> UIStyle<Type> {
+    return UIStyle.combine(lhs, rhs)
 }
 
-extension Styled where Self: UIView {
-    func apply(style: Style<Self>) {
+
+protocol Stylized { }
+
+extension Stylized where Self: UIView {
+    func apply(style: UIStyle<Self>) {
         style.apply(to: self)
     }
 }
 
+extension UIView: Stylized {}
+
 enum Styles {
-    static let header1Label = Style<UILabel> { label in
+    static let header1Label = UIStyle<UILabel> { label in
         label.backgroundColor = .green
         label.textColor = .red
         label.font = .systemFont(ofSize: 70)
     }
 
-    static let header2Label = Style<UILabel> { label in
+    static let header2Label = UIStyle<UILabel> { label in
         label.textColor = UIColor.darkText
         label.font = UIFont(name: "GillSans-SemiBold", size: 24)
     }
 
-    static let ctaButton = Style<UIButton> { button in
+    static let brownLabel = UIStyle<UILabel> { label in
+        label.textColor = .brown
+    }
+
+    static let blueLabel = UIStyle<UILabel> { label in
+        label.textColor = .blue
+    }
+
+    static let header2BlueLabel = Styles.header2Label + Styles.blueLabel
+
+    static let ctaButton = UIStyle<UIButton> { button in
         button.backgroundColor = .green
         button.setTitleColor(.red, for: .normal)
         button.titleLabel?.font = .systemFont(ofSize: 70)
     }
-}
 
-extension UIView: Styled {}
+    static func yellowBackground<Type: UIView>() -> UIStyle<Type> {
+        return UIStyle<Type> { view in
+            view.backgroundColor = .yellow
+        }
+    }
+}

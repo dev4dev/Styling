@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import os.log
 
 class ViewController: UIViewController {
 
@@ -20,16 +21,14 @@ class ViewController: UIViewController {
 
 //        print(UIFont.fontNames(forFamilyName: "Gill Sans"))
 
-        label1.apply(style: Styles.header1Label)
-        label2.apply(style: Styles.header2Label)
-        button1.apply(style: Styles.ctaButton)
+        label1.apply(style: Styles.header1Label + Styles.brownLabel)
+        label2.apply(style: Styles.header2BlueLabel)
+        button1.apply(style: Styles.ctaButton + Styles.yellowBackground())
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
-
-
 }
 
